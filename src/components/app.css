@@ -1,0 +1,11 @@
+.app {
+  width: 500px;
+  height: 200px;
+  background-color: orange;
+  color: aqua;
+  font-size: 24px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
