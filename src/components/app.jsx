@@ -1,6 +1,6 @@
 import React from 'react';
 import './app.less';
-import view from '../assets/view.jpg';
+import view from '~/assets/view.jpg';
 
 const App = () => {
   return (

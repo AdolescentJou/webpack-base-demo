@@ -4,13 +4,15 @@ const UglifyWebpackPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const SpeedMeasureWebpackPlugin = require('speed-measure-webpack-plugin');
+const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   // 入口出口配置
   entry: path.resolve(__dirname, 'src/index.jsx'),
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js',
+    filename: 'bundle.[hash].js',
     publicPath: '/',
   },
 
@@ -18,15 +20,17 @@ module.exports = {
     // 配置模板html
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/index.html'),
-      //       title: 'webpack test demo',
-      //       filename: 'webpack.html',
     }),
     // 分离css
     new MiniCssExtractPlugin({
-      filename: '[name].css',
+      filename: '[name].[chunkhash].css',
     }),
     // 打包前先清空目录
     new CleanWebpackPlugin(),
+    // 构建速度分析
+    new SpeedMeasureWebpackPlugin(),
+    //  构建体积分析
+    //     new WebpackBundleAnalyzer(),
   ],
 
   // 配置本地服务
@@ -36,6 +40,17 @@ module.exports = {
     host: 'localhost',
     // 打开模块热替换
     hot: true,
+  },
+
+  resolve: {
+    // 配置别名
+    alias: {
+      '~': path.resolve('src'),
+      '@': path.resolve('src'),
+      components: path.resolve('src/components'),
+    },
+    // 配置需要解析的后缀，引入的时候不带扩展名，webpack会从左到右依次解析
+    extensions: ['.js', '.jsx', '.json', '.wasm', '.less', '.html', '.css'],
   },
 
   // 配置loader
