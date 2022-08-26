@@ -1,12 +1,12 @@
 import React from 'react';
 import './app.less';
-import view from '~/assets/view.jpg';
+import view from '~/home/assets/view.jpg';
 import { add } from '../utils/treeshaking';
 import ChildModule from './base/childModule';
 
 var dyyhhh = 0;
 console.log(123);
-
+console.log(process.env);
 const App = () => {
   // 动态加载module
   const loadNewModule = () => {

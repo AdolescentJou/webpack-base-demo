@@ -1,5 +1,5 @@
 import React from 'react';
-import { baseConsole } from '~/utils/commonUtil';
+import { baseConsole } from '~/home/utils/commonUtil';
 
 const ChildModule = () => {
   baseConsole();
