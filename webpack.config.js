@@ -6,7 +6,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 // const SpeedMeasureWebpackPlugin = require('speed-measure-webpack-plugin');
-const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const WebpackBundleAnalyzer =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const PurgecssWebpackPlugin = require('purgecss-webpack-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const glob = require('glob'); // 文件匹配模式
@@ -38,7 +39,7 @@ const setMpa = () => {
         filename: `${pageName}.html`,
         template: path.join(__dirname, `src/index.html`),
         chunks: [pageName],
-      }),
+      })
     );
   });
   // 对外输出页面打包需要的 入口集合
@@ -123,19 +124,24 @@ module.exports = (webpackEnv) => {
         '~': path.resolve('src'),
         '@': path.resolve('src'),
         components: path.resolve('src/components'),
+        react: path.resolve(
+          dirname,
+          '../node_modules/react/umd/react.production.min.js'
+        ),
       },
       // 配置需要解析的后缀，引入的时候不带扩展名，webpack会从左到右依次解析
-      extensions: ['.js', '.jsx', '.json', '.wasm', '.less', '.html', '.css'],
+      extensions: ['.js', '.jsx', '.json', '.wasm', '.less', '.html', '.css','...'],
     },
 
     // 配置内联资源，即打包的时候不必引入
-    //   externals: {
-    //     react: 'React',
-    //     'react-dom': 'ReactDOM',
-    //   },
+//       externals: {
+//         react: 'React',
+//         'react-dom': 'ReactDOM',
+//       },
 
     // 配置loader
     module: {
+      noParse: /react\.production\.min\.js$/,
       rules: [
         // 支持加载css文件
         {
@@ -147,7 +153,11 @@ module.exports = (webpackEnv) => {
         },
         {
           test: /\.less/,
-          use: [{ loader: MiniCssExtractPlugin.loader }, 'css-loader', 'less-loader'],
+          use: [
+            { loader: MiniCssExtractPlugin.loader },
+            'css-loader',
+            'less-loader',
+          ],
           exclude: /node_modules/,
           include: path.resolve(__dirname, 'src'),
           sideEffects: true,
@@ -203,7 +213,12 @@ module.exports = (webpackEnv) => {
               loader: 'babel-loader',
               options: {
                 presets: ['@babel/preset-env', '@babel/react'],
-                plugins: [[require('@babel/plugin-proposal-decorators'), { legacy: true }]],
+                plugins: [
+                  [
+                    require('@babel/plugin-proposal-decorators'),
+                    { legacy: true },
+                  ],
+                ],
                 cacheDirectory: true, // 启用缓存
               },
             },
