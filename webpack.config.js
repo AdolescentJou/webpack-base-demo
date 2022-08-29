@@ -6,8 +6,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 // const SpeedMeasureWebpackPlugin = require('speed-measure-webpack-plugin');
-const WebpackBundleAnalyzer =
-  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const PurgecssWebpackPlugin = require('purgecss-webpack-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const glob = require('glob'); // 文件匹配模式
@@ -39,7 +38,7 @@ const setMpa = () => {
         filename: `${pageName}.html`,
         template: path.join(__dirname, `src/index.html`),
         chunks: [pageName],
-      })
+      }),
     );
   });
   // 对外输出页面打包需要的 入口集合
@@ -74,7 +73,7 @@ module.exports = (webpackEnv) => {
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: '[name].[chunkhash].js',
-      publicPath: '/',
+      publicPath: './',
     },
 
     //     devtool:'source-map',
@@ -95,10 +94,13 @@ module.exports = (webpackEnv) => {
       // 构建速度分析 弃用
       //  new SpeedMeasureWebpackPlugin(),
       //  构建体积分析
-      //  new WebpackBundleAnalyzer(),
+      new WebpackBundleAnalyzer({
+        analyzerMode: 'disabled', // 不启动展示打包报告的http服务器
+        generateStatsFile: true, // 是否生成stats.json文件
+      }),
       // 清除无用的css 必须搭配分离css使用
       new PurgecssWebpackPlugin({
-        paths: glob.sync(`${PATHS.src}/**/*`, { nodir: true }),
+        paths: glob.sync(`${PATHS.src}/**/*`, { nodir: true }), //nodir 表示不匹配文件夹
       }),
       // 全局注入环境变量
       new webpack.DefinePlugin({
@@ -124,24 +126,21 @@ module.exports = (webpackEnv) => {
         '~': path.resolve('src'),
         '@': path.resolve('src'),
         components: path.resolve('src/components'),
-        react: path.resolve(
-          dirname,
-          '../node_modules/react/umd/react.production.min.js'
-        ),
+        react: path.resolve(__dirname, 'node_modules/react/umd/react.development.js'),
       },
       // 配置需要解析的后缀，引入的时候不带扩展名，webpack会从左到右依次解析
-      extensions: ['.js', '.jsx', '.json', '.wasm', '.less', '.html', '.css','...'],
+      extensions: ['.js', '.jsx', '.json', '.wasm', '.less', '.html', '.css', '...'],
     },
 
     // 配置内联资源，即打包的时候不必引入
-//       externals: {
-//         react: 'React',
-//         'react-dom': 'ReactDOM',
-//       },
+    //       externals: {
+    //         react: 'React',
+    //         'react-dom': 'ReactDOM',
+    //       },
 
     // 配置loader
     module: {
-      noParse: /react\.production\.min\.js$/,
+      noParse: /react\.development\.js$/,
       rules: [
         // 支持加载css文件
         {
@@ -149,18 +148,14 @@ module.exports = (webpackEnv) => {
           use: [{ loader: MiniCssExtractPlugin.loader }, 'css-loader'],
           exclude: /node_modules/,
           include: path.resolve(__dirname, 'src'),
-          sideEffects: true,
+          //   sideEffects: true,
         },
         {
           test: /\.less/,
-          use: [
-            { loader: MiniCssExtractPlugin.loader },
-            'css-loader',
-            'less-loader',
-          ],
+          use: [{ loader: MiniCssExtractPlugin.loader }, 'css-loader', 'less-loader'],
           exclude: /node_modules/,
           include: path.resolve(__dirname, 'src'),
-          sideEffects: true,
+          //   sideEffects: true,
         },
         // 支持加载图片
         //       {
@@ -213,12 +208,7 @@ module.exports = (webpackEnv) => {
               loader: 'babel-loader',
               options: {
                 presets: ['@babel/preset-env', '@babel/react'],
-                plugins: [
-                  [
-                    require('@babel/plugin-proposal-decorators'),
-                    { legacy: true },
-                  ],
-                ],
+                plugins: [[require('@babel/plugin-proposal-decorators'), { legacy: true }]],
                 cacheDirectory: true, // 启用缓存
               },
             },
@@ -244,24 +234,26 @@ module.exports = (webpackEnv) => {
 
     // 优化配置
     optimization: {
+      // 启动摇树优化
+      usedExports: true,
+      // 启用bundle压缩
+      //       minimize: true,
       minimizer: [
         // 配置压缩js
-        new UglifyWebpackPlugin({
-          parallel: 4, // 使用多进程来运行提高构建速度
-          // 配置移除的语句 生产环境生效
-          uglifyOptions: {
-            compress: {
-              drop_console: true, //传true就是干掉所有的console.*这些函数的调用.
-              drop_debugger: true, //干掉那些debugger;
-              //     pure_funcs: ['console.log'], // 如果你要干掉特定的函数比如console.info ，又想删掉后保留其参数中的副作用，那用pure_funcs来处理   }  }
-            },
-          },
-        }),
+        // new UglifyWebpackPlugin({
+        //   parallel: 4, // 使用多进程来运行提高构建速度
+        //   uglifyOptions: {
+        //     compress: {
+        //       drop_console: true, //传true就是干掉所有的console.*这些函数的调用.
+        //       drop_debugger: true, //干掉那些debugger;
+        //       //     pure_funcs: ['console.log'], // 如果你要干掉特定的函数比如console.info ，又想删掉后保留其参数中的副作用，那用pure_funcs来处理   }  }
+        //     },
+        //   },
+        // }),
         // 配置压缩css
         new OptimizeCssAssetsWebpackPlugin(),
         // 与 UglifyWebpackPlugin 效果相同, UglifyWebpackPlugin已经弃用
         new TerserWebpackPlugin({
-          // 配置移除的语句
           terserOptions: {
             compress: {
               drop_console: true, //传true就是干掉所有的console.*这些函数的调用.
@@ -271,9 +263,6 @@ module.exports = (webpackEnv) => {
           },
         }),
       ],
-      // 启动摇树优化
-      //     usedExports: true,
-      //     minimize: true,
 
       //代码分割 默认配置
       splitChunks: {

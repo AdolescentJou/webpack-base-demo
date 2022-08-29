@@ -10,7 +10,7 @@
     "dev": "webpack-dev-server --mode development --open --hot --env mode=development"
   },
   "author": "",
-  "sideEffects": false,
+  "sideEffects": ["./src/**/*.less"],
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.15.5",

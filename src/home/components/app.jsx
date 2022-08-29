@@ -1,7 +1,7 @@
 import React from 'react';
 import './app.less';
 import view from '~/home/assets/view.jpg';
-import { add } from '../utils/treeshaking';
+import { commonAdd } from '../utils/treeshaking';
 import ChildModule from './base/childModule';
 
 var dyyhhh = 0;
