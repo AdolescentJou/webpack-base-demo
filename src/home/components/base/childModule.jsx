@@ -1,8 +1,9 @@
 import React from 'react';
-import { baseConsole } from '~/home/utils/commonUtil';
 
+import './base.less';
+
+// 该组件用于测试 postcss 配置 css module
 const ChildModule = () => {
-  baseConsole();
   return <div class='module'>这是一个子module</div>;
 };
 

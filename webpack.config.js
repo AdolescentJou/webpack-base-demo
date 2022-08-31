@@ -9,6 +9,8 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const WebpackBundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const PurgecssWebpackPlugin = require('purgecss-webpack-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
+const CaseSensitivePathsWebpackPlugin = require('case-sensitive-paths-webpack-plugin');
 const glob = require('glob'); // 文件匹配模式
 const fs = require('fs');
 const dotenv = require('dotenv');
@@ -73,7 +75,7 @@ module.exports = (webpackEnv) => {
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: '[name].[chunkhash].js',
-      publicPath: './',
+      publicPath: mode === 'development' ? '/' : './',
     },
 
     //     devtool:'source-map',
@@ -94,10 +96,10 @@ module.exports = (webpackEnv) => {
       // 构建速度分析 弃用
       //  new SpeedMeasureWebpackPlugin(),
       //  构建体积分析
-      new WebpackBundleAnalyzer({
-        analyzerMode: 'disabled', // 不启动展示打包报告的http服务器
-        generateStatsFile: true, // 是否生成stats.json文件
-      }),
+      //       new WebpackBundleAnalyzer({
+      //         analyzerMode: 'disabled', // 不启动展示打包报告的http服务器
+      //         generateStatsFile: true, // 是否生成stats.json文件
+      //       }),
       // 清除无用的css 必须搭配分离css使用
       new PurgecssWebpackPlugin({
         paths: glob.sync(`${PATHS.src}/**/*`, { nodir: true }), //nodir 表示不匹配文件夹
@@ -106,6 +108,12 @@ module.exports = (webpackEnv) => {
       new webpack.DefinePlugin({
         'process.env': raw,
       }),
+      // 生成依赖文件清单
+      new WebpackManifestPlugin({
+        fileName: 'asset-manifest.json',
+      }),
+      // 忽略路径引入大小写,webpack5已经内置，不用引用
+      // new CaseSensitivePathsWebpackPlugin()
     ],
 
     // 配置本地服务
@@ -132,7 +140,7 @@ module.exports = (webpackEnv) => {
       extensions: ['.js', '.jsx', '.json', '.wasm', '.less', '.html', '.css', '...'],
     },
 
-    // 配置内联资源，即打包的时候不必引入
+    // 配置内联资源，即打包的时候不必引入，会发额外请求
     //       externals: {
     //         react: 'React',
     //         'react-dom': 'ReactDOM',
@@ -145,19 +153,65 @@ module.exports = (webpackEnv) => {
         // 支持加载css文件
         {
           test: /\.css/,
-          use: [{ loader: MiniCssExtractPlugin.loader }, 'css-loader'],
+          use: [
+            { loader: MiniCssExtractPlugin.loader },
+            //     'style-loader',
+            'css-loader',
+            //     {
+            //       loader: 'css-loader',
+            //       // 配置css module 启动需要开启 'style-loader', 注释MiniCssExtractPlugin，less-loader
+            //       options: {
+            //         modules: true,
+            //         importLoaders: 1,
+            //       },
+            //     },
+          ],
           exclude: /node_modules/,
           include: path.resolve(__dirname, 'src'),
-          //   sideEffects: true,
+          //   sideEffects: true, // 关闭tree shaking 副作用影响
         },
         {
           test: /\.less/,
-          use: [{ loader: MiniCssExtractPlugin.loader }, 'css-loader', 'less-loader'],
+          use: [
+            { loader: MiniCssExtractPlugin.loader },
+            'css-loader',
+            'less-loader',
+            //     'style-loader',
+            //     {
+            //       loader: 'css-loader',
+            //       // 配置css module 启动需要开启 'style-loader', 注释MiniCssExtractPlugin，less-loader
+            //       options: {
+            //         modules: true,
+            //         importLoaders: 1,
+            //       },
+            //     },
+            {
+              loader: 'postcss-loader',
+              options: {
+                postcssOptions: {
+                  plugins: [
+                    'postcss-flexbugs-fixes', // 规范flex 布局语法
+                    'postcss-normalize', // 删除无意义的css语法
+                    [
+                      'postcss-preset-env', //通用化css格式
+                      {
+                        autoprefixer: {
+                          flexbox: 'no-2009',
+                        },
+                        stage: 3,
+                      },
+                    ],
+                    //     'autoprefixer', // 自动给不兼容的css属性加上浏览器前缀
+                  ],
+                },
+              },
+            },
+          ],
           exclude: /node_modules/,
           include: path.resolve(__dirname, 'src'),
-          //   sideEffects: true,
+          //   sideEffects: true, // 关闭tree shaking 副作用影响
         },
-        // 支持加载图片
+        // 支持加载图片，已弃用，现使用 type: 'asset',
         //       {
         //         test: /.(gif|jpg|png|bmp|eot|woff|woff2|ttf|svg)/,
         //         use: [
@@ -236,7 +290,7 @@ module.exports = (webpackEnv) => {
     optimization: {
       // 启动摇树优化
       usedExports: true,
-      // 启用bundle压缩
+      // 启用压缩插件压缩代码
       //       minimize: true,
       minimizer: [
         // 配置压缩js
