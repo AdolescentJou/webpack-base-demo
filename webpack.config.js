@@ -175,7 +175,13 @@ module.exports = (webpackEnv) => {
           use: [
             { loader: MiniCssExtractPlugin.loader },
             'css-loader',
-            'less-loader',
+            {
+              loader:'less-loader',
+              // 将变量注入到less文件中
+              options: {
+                additionalData:'body{ background-color: red;};'
+              }
+            },
             //     'style-loader',
             //     {
             //       loader: 'css-loader',
