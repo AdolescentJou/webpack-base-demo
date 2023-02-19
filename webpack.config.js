@@ -11,6 +11,7 @@ const PurgecssWebpackPlugin = require('purgecss-webpack-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const CaseSensitivePathsWebpackPlugin = require('case-sensitive-paths-webpack-plugin');
+const ConsolePlugin = require('./lib/plugin/console_plugin.js');
 const glob = require('glob'); // 文件匹配模式
 const fs = require('fs');
 const dotenv = require('dotenv');
@@ -112,6 +113,8 @@ module.exports = (webpackEnv) => {
       new WebpackManifestPlugin({
         fileName: 'asset-manifest.json',
       }),
+      //自定义插件
+      new ConsolePlugin({name:'111'})
       // 忽略路径引入大小写,webpack5已经内置，不用引用
       // new CaseSensitivePathsWebpackPlugin()
     ],
@@ -179,9 +182,10 @@ module.exports = (webpackEnv) => {
               loader:'less-loader',
               // 将变量注入到less文件中
               options: {
-                additionalData:'body{ background-color: red;};'
+                // additionalData:'body{ background-color: red;};'
               }
             },
+            './lib/loader/console_loader.js',
             //     'style-loader',
             //     {
             //       loader: 'css-loader',
@@ -276,6 +280,12 @@ module.exports = (webpackEnv) => {
           include: path.resolve(__dirname, 'src'),
           exclude: /node_modules/,
         },
+        // {
+        //   test: /\.txt?$/,
+        //   use:[{
+        //     loader:'./lib/loader/console_loader.js',
+        //   }]
+        // }
       ],
     },
 
