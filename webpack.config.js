@@ -27,7 +27,7 @@ const setMpa = () => {
   const htmlWebpackPlugins = [];
 
   // 借助 glob 获取 src 目录下的所有入口文件
-  const entryFiles = glob.sync(path.resolve(__dirname, './src/*/index.jsx'));
+  const entryFiles = glob.sync(path.resolve(__dirname, './src/*/index.tsx'));
 
   // 遍历文件集合，生成所需要的 entry、htmlWebpackPlugins 集合
   entryFiles.map((item, index) => {
@@ -280,12 +280,26 @@ module.exports = (webpackEnv) => {
           include: path.resolve(__dirname, 'src'),
           exclude: /node_modules/,
         },
-        // {
-        //   test: /\.txt?$/,
-        //   use:[{
-        //     loader:'./lib/loader/console_loader.js',
-        //   }]
-        // }
+        {
+          test: /.(ts|tsx)$/, // 匹配.ts, tsx文件
+          use: {
+            loader: 'babel-loader',
+            options: {
+              // 预设执行顺序由右往左,所以先处理ts,再处理jsx
+              presets: [
+                '@babel/preset-react',
+                '@babel/preset-typescript'
+              ]
+            }
+          }
+        },
+        // 自定义测试loader
+        {
+          test: /\.js?$/,
+          use:[{
+            loader:'./lib/loader/promise_loader.js',
+          }]
+        }
       ],
     },
 

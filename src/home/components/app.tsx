@@ -20,8 +20,8 @@ const App = () => {
 
   return (
     <div className='app'>
-      <span>webpack test demo1</span>
-      <img src={view} alt='' srcset='' width={200} />
+      <span>webpack test demo</span>
+      <img src={view} alt='' width={200} />
       <button onClick={loadNewModule}>点我加载新模块</button>
       <ChildModule />
     </div>
