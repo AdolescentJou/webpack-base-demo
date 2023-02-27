@@ -31,7 +31,7 @@ const setMpa = () => {
 
   // 遍历文件集合，生成所需要的 entry、htmlWebpackPlugins 集合
   entryFiles.map((item, index) => {
-    const match = item.match(/src\/(.*)\/index\.jsx$/);
+    const match = item.match(/src\/(.*)\/index\.tsx$/);
     const pageName = match?.[1];
     entry[pageName] = item;
     // 多页面所需要的模板集合
@@ -140,7 +140,7 @@ module.exports = (webpackEnv) => {
         react: path.resolve(__dirname, 'node_modules/react/umd/react.development.js'),
       },
       // 配置需要解析的后缀，引入的时候不带扩展名，webpack会从左到右依次解析
-      extensions: ['.js', '.jsx', '.json', '.wasm', '.less', '.html', '.css', '...'],
+      extensions: ['.tsx','.js', '.jsx', '.json', '.wasm', '.less', '.html', '.css', '...'],
     },
 
     // 配置内联资源，即打包的时候不必引入，会发额外请求
@@ -182,10 +182,9 @@ module.exports = (webpackEnv) => {
               loader:'less-loader',
               // 将变量注入到less文件中
               options: {
-                // additionalData:'body{ background-color: red;};'
+                additionalData:'body{ background-color: red;};'
               }
             },
-            './lib/loader/console_loader.js',
             //     'style-loader',
             //     {
             //       loader: 'css-loader',
@@ -218,7 +217,7 @@ module.exports = (webpackEnv) => {
             },
           ],
           exclude: /node_modules/,
-          include: path.resolve(__dirname, 'src'),
+          // include: path.resolve(__dirname, 'src'),
           //   sideEffects: true, // 关闭tree shaking 副作用影响
         },
         // 支持加载图片，已弃用，现使用 type: 'asset',
