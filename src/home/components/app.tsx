@@ -11,20 +11,19 @@ console.log(123);
 // 全局变量测试
 console.log(process.env);
 
+// promise loader测试
 const x = add(1, 2);
 
 const App = () => {
-  console.log(x);
-  
   // 动态加载module
   const loadNewModule = () => {
-    import(/* webpackChunkName: "changeModuleName" */'./base/asyncImportModule').then((res) => console.log(res));
+    import(/* webpackChunkName: "changeModuleName" */ './base/asyncImportModule').then((res) => console.log(res));
   };
 
   return (
-    <div className='app'>
+    <div className="app">
       <span>webpack test demo</span>
-      <img src={view} alt='' width={200} />
+      <img src={view} alt="" width={200} />
       <button onClick={loadNewModule}>点我加载新模块</button>
       <ChildModule />
     </div>

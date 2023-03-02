@@ -296,7 +296,7 @@ module.exports = (webpackEnv) => {
         {
           test: /\.js?$/,
           use:[{
-            loader:'./lib/loader/promise_loader.js',
+            loader:'./lib/loader/object_trans_loader.js',
           }]
         }
       ],
